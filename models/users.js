@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
     validate: {
       validator: (url) => validator.isURL(url),
       message: 'Некорректный адрес URL',
-    }
-  }
+    },
+  },
 },{ versionKey: false });
 module.exports = mongoose.model('user', userSchema);
