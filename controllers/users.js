@@ -28,8 +28,15 @@ function createUser(req, res) {
     .then((data) => {
       res.status(200).send(data);
     })
-    .catch((data) => {
-        res.status(500).send({ massege: data });
+    .catch((err) => {
+      if (err.name === 'ValidationError'){
+        res.status(ERROR_CODE).send({ massege: data });
+      }
+      else{
+        res.status(500).send({ massege: data })
+      }
+
+
     });
 }
 function updateUser(req, res) {
