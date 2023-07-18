@@ -12,10 +12,10 @@ function getUser(req, res) {
   return User.findById(userId)
     .then((data) => {
       if(!data){
-        res.send('Пользователь по указанному id не найден.')
+        res.status(400).send({ message:'Пользователь по указанному id не найден.'})
       }
       else{
-        res.status(200).send(data)}
+        res.status(200).send({ message:data})}
       })
 
     .catch((err) => {
@@ -49,7 +49,7 @@ function updateUser(req, res) {
   User.findByIdAndUpdate(req.user._id, { name, about })
     .then((data) => {
       if(!data){
-        res.status('Пользователь по указанному id не найден.')
+        res.status(400).send({ message:'Пользователь по указанному id не найден.'})
       }
       else{
         res.status(200).send({ message: data });
@@ -71,7 +71,7 @@ function updateAvatar(req, res) {
   User.findByIdAndUpdate(req.user._id, { avatar })
   .then((data) => {
     if(!data){
-      res.status('Пользователь по указанному id не найден.')
+      res.status(400).send({ message:'Пользователь по указанному id не найден.'})
     }
     else{
       res.status(200).send({ message: data });
