@@ -33,7 +33,7 @@ function createUser(req, res) {
         res.status(ERROR_CODE).send({ massege: data });
       }
       else{
-        res.status(500).send({ massege: data })
+        res.status(500).send({ massege: data });
       }
 
 
