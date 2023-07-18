@@ -30,7 +30,7 @@ function createUser(req, res) {
     })
     .catch((err) => {
       if (err.name === 'ValidationError'){
-        res.status(ERROR_CODE).send({ message: data });
+        res.status(ERROR_CODE).send({ message: err });
       }
       else{
         res.status(500).send({ message: data });
