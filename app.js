@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser=require('body-parser')
 
-const { PORT = 3003 } = process.env;
+const { PORT = 3000} = process.env;
 const app = express();
 const routes = require('./routes/cards');
 const routes2 = require('./routes/users');
