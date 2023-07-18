@@ -20,7 +20,7 @@ function getUser(req, res) {
 
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        res.status(400).send('Некорректный формат id.')}
+        res.status(404).send({ message:'Некорректный формат id.'})}
       else{
         res.status(500).send({ message: err.message });
       }
@@ -48,14 +48,15 @@ function updateUser(req, res) {
   User.findByIdAndUpdate(req.user._id, { name, about })
     .then((data) => {
       if(!data){
-        res.status(400).send({ message:'Пользователь по указанному id не найден.'})
+        res.status(404).send({ message:'Пользователь по указанному id не найден.'})
       }
       else{
-        res.status(200).send({ message: data });
+        res.status(200).send(data);
       }
 
     })
     .catch((data) => {
+      res.send(data)
       if (data.name === 'ValidationError'){
         return res.status(ERROR_CODE).send({ massege: data })}
 
