@@ -4,7 +4,7 @@ function getUsers(_req, res) {
   return User.find({})
     .then((data) => res.status(200).send(data))
     .catch((data) => {
-      res.status(500).send({ massege: data });
+      res.status(500).send({ message: data });
     });
 }
 function getUser(req, res) {
@@ -19,21 +19,21 @@ function getUser(req, res) {
       })
 
     .catch((data) => {
-      res.status(500).send({ massege:data});
+      res.status(500).send({ message:data});
     });
 }
 function createUser(req, res) {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((data) => {
-      res.status(200).send(data);
+      res.status(200).send({message: data });
     })
     .catch((err) => {
       if (err.name === 'ValidationError'){
-        res.status(ERROR_CODE).send({ massege: data });
+        res.status(ERROR_CODE).send({ message: data });
       }
       else{
-        res.status(500).send({ massege: data });
+        res.status(500).send({ message: data });
       }
 
 
@@ -47,7 +47,7 @@ function updateUser(req, res) {
         res.status('Пользователь по указанному id не найден.')
       }
       else{
-        res.status(200).send(data);
+        res.status(200).send({ message: data });
       }
 
     })
@@ -56,7 +56,7 @@ function updateUser(req, res) {
         return res.status(ERROR_CODE).send({ massege: data })}
 
       else{
-      res.status(500).send({ massege: data });
+      res.status(500).send({ message: data });
     }
 
     });
@@ -69,16 +69,16 @@ function updateAvatar(req, res) {
       res.status('Пользователь по указанному id не найден.')
     }
     else{
-      res.status(200).send(data);
+      res.status(200).send({ message: data });
     }
 
   })
   .catch((data) => {
     if (data.name === 'ValidationError'){
-      return res.status(ERROR_CODE).send({ massege: data })}
+      return res.status(ERROR_CODE).send({ message: data })}
 
     else{
-    res.status(500).send({ massege: data });
+    res.status(500).send({ message: data });
   }
 
   });

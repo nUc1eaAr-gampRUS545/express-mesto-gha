@@ -34,9 +34,9 @@ function createCard(req, res) {
     .then((data) => res.status(200).send({ message: data }))
     .catch((data) => {
       if (data.name === "ValidationError") {
-        return res.status(ERROR_CODE).send({ massege: data });
+        return res.status(ERROR_CODE).send({ message: data });
       } else {
-        res.status(500).send({ massege: data });
+        res.status(500).send({ message: data });
       }
     });
 }
@@ -52,9 +52,9 @@ function deleteCard(req, res) {
     })
     .catch((data) => {
       if (data.name === "ValidationError") {
-        return res.status(ERROR_CODE).send({ massege: data });
+        return res.status(ERROR_CODE).send({ message: data });
       } else {
-        res.status(500).send({ massege: data });
+        res.status(500).send({ message: data });
       }
     });
 }
@@ -74,9 +74,9 @@ function likeCard(req, res) {
     })
     .catch((data) => {
       if (data.name === "ValidationError") {
-        return res.status(ERROR_CODE).send({ massege: data });
+        return res.status(ERROR_CODE).send({ message: data });
       } else {
-        res.status(500).send({ massege: data });
+        res.status(500).send({ message: data });
       }
     });
 }
@@ -96,9 +96,9 @@ const dislikeCard = (req, res) =>
     })
     .catch((data) => {
       if (data.name === "ValidationError") {
-        return res.status(ERROR_CODE).send({ massege: data });
+        return res.status(ERROR_CODE).send({ message: data });
       } else {
-        res.status(500).send({ massege: data });
+        res.status(500).send({ message: data });
       }
     });
 
