@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -15,6 +16,10 @@ const userSchema = new mongoose.Schema({
   avatar:{
     type: String,
     required: true,
+    validate: {
+      validator: (url) => validator.isURL(url),
+      message: 'Некорректный адрес URL',
+    }
   }
-});
+},{ versionKey: false });
 module.exports = mongoose.model('user', userSchema);
