@@ -31,14 +31,17 @@ function createCard(req, res) {
   const owner = req.user._id;
   const { name, link } = req.body;
   Card.create({ name, link, owner })
-    .then((data) => res.status(200).send({ message: data }))
-    .catch((data) => {
-      if (data.name === "ValidationError") {
-        return res.status(ERROR_CODE).send({ message: data });
-      } else {
-        res.status(500).send({ message: data });
-      }
-    });
+  .then((data) => {
+    res.status(200).send({message: data });
+  })
+  .catch((err) => {
+    if (err.name === 'ValidationError'){
+      res.status(ERROR_CODE).send({ message: err.message });
+    }
+    else{
+      res.status(500).send({ message: err.message });
+    }
+  });
 }
 
 function deleteCard(req, res) {
@@ -67,14 +70,14 @@ function likeCard(req, res) {
   )
     .then((data) => {
       if (!data) {
-        res.send("Такой карточки не сущесвует");
+        res.status(400).send({ message:"Такой карточки не сущесвует"});
       } else {
         res.status(200).send({ message: data });
       }
     })
     .catch((data) => {
       if (data.name === "ValidationError") {
-        return res.status(ERROR_CODE).send({ message: data });
+         res.status(ERROR_CODE).send({ message: data });
       } else {
         res.status(500).send({ message: data });
       }
@@ -89,14 +92,14 @@ const dislikeCard = (req, res) =>
   )
     .then((data) => {
       if (!data) {
-        res.send("Такой карточки не сущесвует");
+        res.status(400).send({ message:"Такой карточки не сущесвует"});
       } else {
         res.status(200).send({ message: data });
       }
     })
     .catch((data) => {
       if (data.name === "ValidationError") {
-        return res.status(ERROR_CODE).send({ message: data });
+         res.status(ERROR_CODE).send({ message: data });
       } else {
         res.status(500).send({ message: data });
       }

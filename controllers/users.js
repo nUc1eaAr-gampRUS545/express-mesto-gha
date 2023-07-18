@@ -51,7 +51,7 @@ function updateUser(req, res) {
         res.status(404).send({ message:'Пользователь по указанному id не найден.'})
       }
       else{
-        res.status(200).send(data);
+        res.status(200).send(name, about);
       }
 
     })
