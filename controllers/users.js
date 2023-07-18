@@ -4,20 +4,21 @@ function getUsers(_req, res) {
   return User.find({})
     .then((data) => res.status(200).send(data))
     .catch((data) => {
-      if (data.name === "SomeErrorName") {
-        return res.status(ERROR_CODE).send({ massege: data });
-      }
       res.status(500).send({ massege: data });
     });
 }
 function getUser(req, res) {
   const { userId } = req.params;
   return User.findById(userId)
-    .then((data) => res.status(200).send(data))
-    .catch((data) => {
-      if (data.name === "SomeErrorName") {
-        return res.status(ERROR_CODE).send({ massege: data });
+    .then((data) => {
+      if(!data){
+        res.send('Пользователь по указанному id не найден.')
       }
+      else{
+        res.status(200).send(data)}
+      })
+
+    .catch((data) => {
       res.status(500).send({ massege:data});
     });
 }
@@ -28,8 +29,6 @@ function createUser(req, res) {
       res.status(200).send(data);
     })
     .catch((data) => {
-      if (data.name === 'SomeErrorName'){
-        return res.status(ERROR_CODE).send({ massege: data })}
         res.status(500).send({ massege: data });
     });
 }
@@ -37,25 +36,45 @@ function updateUser(req, res) {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about })
     .then((data) => {
-      res.status(200).send(data);
+      if(!data){
+        res.status('Пользователь по указанному id не найден.')
+      }
+      else{
+        res.status(200).send(data);
+      }
+
     })
     .catch((data) => {
-      if (data.name === 'SomeErrorName'){
+      if (data.name === 'ValidationError'){
         return res.status(ERROR_CODE).send({ massege: data })}
-        res.status(500).send({ massege: data });
+
+      else{
+      res.status(500).send({ massege: data });
+    }
+
     });
 }
 function updateAvatar(req, res) {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar })
-    .then((data) => {
+  .then((data) => {
+    if(!data){
+      res.status('Пользователь по указанному id не найден.')
+    }
+    else{
       res.status(200).send(data);
-    })
-    .catch((data) => {
-      if (data.name === 'SomeErrorName'){
-        return res.status(ERROR_CODE).send({ massege: data })}
-        res.status(500).send({ massege: data });
-    });
+    }
+
+  })
+  .catch((data) => {
+    if (data.name === 'ValidationError'){
+      return res.status(ERROR_CODE).send({ massege: data })}
+
+    else{
+    res.status(500).send({ massege: data });
+  }
+
+  });
 }
 module.exports = {
   getUser,
