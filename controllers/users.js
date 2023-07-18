@@ -18,8 +18,13 @@ function getUser(req, res) {
         res.status(200).send(data)}
       })
 
-    .catch((data) => {
-      res.status(500).send({ message:data});
+    .catch((err) => {
+      if (err.name === 'ValidationError'){
+        res.status(ERROR_CODE).send({ message: err.message });
+      }
+      else{
+        res.status(500).send({ message: err.message });
+      }
     });
 }
 function createUser(req, res) {
