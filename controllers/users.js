@@ -19,9 +19,8 @@ function getUser(req, res) {
       })
 
     .catch((err) => {
-      if (err.name === 'ValidationError'){
-        res.status(ERROR_CODE).send({ message: err.message });
-      }
+      if (err.kind === 'ObjectId') {
+        res.status(400).send('Некорректный формат id.')}
       else{
         res.status(500).send({ message: err.message });
       }
