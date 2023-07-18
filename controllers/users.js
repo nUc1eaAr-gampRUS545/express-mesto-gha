@@ -45,13 +45,17 @@ function createUser(req, res) {
 }
 function updateUser(req, res) {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user._id, { name, about })
+  User.findByIdAndUpdate(req.user._id, { name, about },  {
+
+    runValidators: true,
+
+  })
     .then((data) => {
       if(!data){
-        res.status(404).send({ message:'Пользователь по указанному id не найден.'})
+        return res.status(404).send({ message:'Пользователь по указанному id не найден.'})
       }
       else{
-        res.status(200).send(name, about);
+       return res.status(200).send({name:data.name,about:data.about});
       }
 
     })
@@ -68,7 +72,9 @@ function updateUser(req, res) {
 }
 function updateAvatar(req, res) {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar })
+  User.findByIdAndUpdate(req.user._id, { avatar }, {
+    runValidators: true,
+  })
   .then((data) => {
     if(!data){
       res.status(400).send({ message:'Пользователь по указанному id не найден.'})
