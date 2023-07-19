@@ -48,9 +48,7 @@ function createUser(req, res) {
 function updateUser(req, res) {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about },  {
-
     runValidators: true,
-
   })
     .then((data) => {
       if(!data){
@@ -62,9 +60,8 @@ function updateUser(req, res) {
 
     })
     .catch((data) => {
-      res.send(data)
       if (data.name === 'ValidationError'){
-        return res.status(ERROR_CODE).send({ massege: data })}
+        return res.status(400).send({ massege: data.name })}
 
       else{
       res.status(500).send({ message: data });
@@ -82,13 +79,13 @@ function updateAvatar(req, res) {
       res.status(400).send({ message:'Пользователь по указанному id не найден.'})
     }
     else{
-      res.status(200).send({ message: data });
+      res.status(200).send({ message: data.avatar });
     }
 
   })
   .catch((data) => {
     if (data.name === 'ValidationError'){
-      return res.status(ERROR_CODE).send({ message: data })}
+      return res.status(400).send({ message: data })}
 
     else{
     res.status(500).send({ message: data });

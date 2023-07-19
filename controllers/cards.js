@@ -67,16 +67,19 @@ function likeCard(req, res) {
   )
     .then((data) => {
       if (!data) {
-        res.status(400).send({ message:"Такой карточки не сущесвует"});
+        res.status(404).send({ message:"Такой карточки не сущесвует"});
       } else {
         res.status(200).send({ message: data });
       }
     })
     .catch((err) => {
-
       if (err.kind === 'ObjectId') {
         res.status(400).send({ message:'Некорректный формат id.'})
-      } else {
+      }
+      else if (err.name === 'ValidationError'){
+        res.status(ERROR_CODE).send({ message: err.message });
+      }
+      else {
         res.status(500).send({ message: data });
       }
     });
@@ -90,7 +93,7 @@ const dislikeCard = (req, res) =>
   )
     .then((data) => {
       if (!data) {
-        res.status(400).send({ message:"Такой карточки не сущесвует"});
+        res.status(404).send({ message:"Такой карточки не сущесвует"});
       } else {
         res.status(200).send({ message: data });
       }
