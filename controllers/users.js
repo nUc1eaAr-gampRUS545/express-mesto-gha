@@ -20,7 +20,7 @@ function getUser(req, res) {
 
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        res.status(404).send({ message:'Некорректный формат id.'})}
+        res.status(400).send({ message:'Некорректный формат id.'})}
       else{
         res.status(500).send({ message: err.message });
       }
@@ -52,7 +52,7 @@ function updateUser(req, res) {
   })
     .then((data) => {
       if(!data){
-        return res.status(404).send({ message:'Пользователь по указанному id не найден.'})
+        return res.status(400).send({ message:'Пользователь по указанному id не найден.'})
       }
       else{
        return res.status(200).send({name:data.name,about:data.about});
