@@ -86,7 +86,7 @@ function updateAvatar(req, res) {
           .status(400)
           .send({ message: "Пользователь по указанному id не найден." });
       } else {
-        res.status(200).send({ message: avatar });
+        res.status(200).send({ message: data.avatar });
       }
     })
     .catch((data) => {
