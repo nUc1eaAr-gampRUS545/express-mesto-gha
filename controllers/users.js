@@ -55,13 +55,13 @@ function updateUser(req, res) {
         return res.status(400).send({ message:'Пользователь по указанному id не найден.'})
       }
       else{
-       return res.status(200).send({name:data.name,about:data.about});
+       return res.status(200).send({message:{name:data.name,about:data.about}});
       }
 
     })
     .catch((data) => {
       if (data.name === 'ValidationError'){
-        return res.status(400).send({ massege: data.name })}
+        return res.status(400).send({ message: data.name })}
 
       else{
       res.status(500).send({ message: data });
