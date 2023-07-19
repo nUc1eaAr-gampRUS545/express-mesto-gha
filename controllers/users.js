@@ -12,7 +12,7 @@ function getUser(req, res) {
   return User.findById(userId)
     .then((data) => {
       if(!data){
-        res.status(404).send({ message:'Пользователь по указанному id не найден.'})
+        res.status(400).send({ message:'Пользователь по указанному id не найден.'})
       }
       else{
         res.status(200).send({ message:data})}
