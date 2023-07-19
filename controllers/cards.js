@@ -20,9 +20,6 @@ function getCard(req, res) {
       }
     })
     .catch((data) => {
-      if (data.name === "SomeErrorName") {
-        return res.status(ERROR_CODE).send({ massege: data });
-      }
       res.status(500).send({ massege: data });
     });
 }
@@ -48,16 +45,16 @@ function deleteCard(req, res) {
   Card.findByIdAndRemove(req.params.cardId)
     .then((data) => {
       if (!data) {
-        res.send("Такой карточки не сущесвует");
+        res.status(400).send({ message:"Такой карточки не сущесвует"});
       } else {
         res.status(200).send({ message: data });
       }
     })
-    .catch((data) => {
-      if (data.name === "ValidationError") {
-        return res.status(ERROR_CODE).send({ message: data });
-      } else {
-        res.status(500).send({ message: data });
+    .catch((err) => {
+      if (err.kind === 'ObjectId') {
+        res.status(404).send({ message:'Некорректный формат id.'})}
+      else{
+        res.status(500).send({ message: err.message });
       }
     });
 }
@@ -70,7 +67,7 @@ function likeCard(req, res) {
   )
     .then((data) => {
       if (!data) {
-        res.status(400).send({ message:"Такой карточки не сущесвует"});
+        res.status(404).send({ message:"Такой карточки не сущесвует"});
       } else {
         res.status(200).send({ message: data });
       }
@@ -78,7 +75,7 @@ function likeCard(req, res) {
     .catch((err) => {
 
       if (err.kind === 'ObjectId') {
-        res.status(404).send({ message:'Некорректный формат id.'})
+        res.status(400).send({ message:'Некорректный формат id.'})
       } else {
         res.status(500).send({ message: data });
       }
@@ -93,14 +90,14 @@ const dislikeCard = (req, res) =>
   )
     .then((data) => {
       if (!data) {
-        res.status(400).send({ message:"Такой карточки не сущесвует"});
+        res.status(404).send({ message:"Такой карточки не сущесвует"});
       } else {
         res.status(200).send({ message: data });
       }
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        res.status(404).send({ message:'Некорректный формат id.'})
+        res.status(400).send({ message:'Некорректный формат id.'})
       } else {
         res.status(500).send({ message: data });
       }
