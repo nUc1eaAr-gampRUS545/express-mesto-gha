@@ -75,9 +75,10 @@ function likeCard(req, res) {
         res.status(200).send({ message: data });
       }
     })
-    .catch((data) => {
-      if (data.name === "ValidationError") {
-         res.status(ERROR_CODE).send({ message: data });
+    .catch((err) => {
+
+      if (err.kind === 'ObjectId') {
+        res.status(404).send({ message:'Некорректный формат id.'})
       } else {
         res.status(500).send({ message: data });
       }
@@ -97,9 +98,9 @@ const dislikeCard = (req, res) =>
         res.status(200).send({ message: data });
       }
     })
-    .catch((data) => {
-      if (data.name === "ValidationError") {
-         res.status(ERROR_CODE).send({ message: data });
+    .catch((err) => {
+      if (err.kind === 'ObjectId') {
+        res.status(404).send({ message:'Некорректный формат id.'})
       } else {
         res.status(500).send({ message: data });
       }
