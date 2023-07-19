@@ -45,7 +45,7 @@ function deleteCard(req, res) {
   Card.findByIdAndRemove(req.params.cardId)
     .then((data) => {
       if (!data) {
-        res.status(400).send({ message:"Такой карточки не сущесвует"});
+        res.status(404).send({ message:"Такой карточки не сущесвует"});
       } else {
         res.status(200).send({ message: data });
       }

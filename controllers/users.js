@@ -55,7 +55,7 @@ function updateUser(req, res) {
         return res.status(400).send({ message:'Пользователь по указанному id не найден.'})
       }
       else{
-       return res.status(200).send({message:{name:data.name,about:data.about}});
+       return res.status(200).send({message:{name,about}});
       }
 
     })
@@ -79,7 +79,7 @@ function updateAvatar(req, res) {
       res.status(400).send({ message:'Пользователь по указанному id не найден.'})
     }
     else{
-      res.status(200).send({ message: data.avatar });
+      res.status(200).send({ message: avatar });
     }
 
   })
