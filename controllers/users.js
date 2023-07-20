@@ -8,9 +8,7 @@ function getUsers(_req, res) {
       res.status(500).send({ message: data });
     });
 }
-function notFound(_req, res) {
-  return res.status(404).send({ message: 'Страница не найдена' });
-}
+
 function getUser(req, res) {
   const { userId } = req.params;
   return User.findById(userId)
@@ -49,7 +47,7 @@ function createUser(req, res) {
 function updateUser(req, res) {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
-    req.user.id,
+    req.user._id,
     { name, about },
     { new: true, runValidators: true },
   )
@@ -71,7 +69,7 @@ function updateUser(req, res) {
 function updateAvatar(req, res) {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
-    req.user.id,
+    req.user._id,
     { avatar },
     { new: true, runValidators: true },
   )
@@ -98,5 +96,4 @@ module.exports = {
   createUser,
   updateUser,
   updateAvatar,
-  notFound,
 };

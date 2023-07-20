@@ -13,13 +13,16 @@ async function main() {
 main();
 
 app.use((req, _res, next) => {
-  req.user = { id: '64b6c015f588f15e2b44d530' };
+  req.user = { _id: '64b6c015f588f15e2b44d530' };
   next();
 });
 app.use(bodyParser.json());
 app.use(routesUsers);
 app.use(routesCards);
-
+app.use((_req, res) => {
+  res.status(404).send({ message: 'Страница по указанному маршруту не найдена' });
+});
 app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
   console.log('Сервер запущен');
 });
