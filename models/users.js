@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -13,7 +14,7 @@ const userSchema = new mongoose.Schema({
     minlength: 2,
     maxlength: 30,
   },
-  avatar:{
+  avatar: {
     type: String,
     required: true,
     validate: {
@@ -21,5 +22,8 @@ const userSchema = new mongoose.Schema({
       message: 'Некорректный адрес URL',
     },
   },
-},{ versionKey: false });
+}, {
+  versionKey: false,
+});
+
 module.exports = mongoose.model('user', userSchema);

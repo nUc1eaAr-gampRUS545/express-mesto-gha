@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+
 const cardSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -7,7 +8,7 @@ const cardSchema = new mongoose.Schema({
     minlength: 2,
     maxlength: 30,
   },
-  link:{
+  link: {
     type: String,
     required: true,
     validate: {
@@ -30,4 +31,5 @@ const cardSchema = new mongoose.Schema({
     default: Date.now,
   },
 }, { versionKey: false });
+
 module.exports = mongoose.model('card', cardSchema);

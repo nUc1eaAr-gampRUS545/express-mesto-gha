@@ -1,4 +1,5 @@
-const Card = require("../models/cards");
+const Card = require('../models/cards');
+
 const ERROR_CODE = 400;
 function getCards(_req, res) {
   return Card.find({})
@@ -14,7 +15,7 @@ function getCard(req, res) {
   return Card.findById(req.params.cardId)
     .then((data) => {
       if (!data) {
-        res.send("Такого пользователя не сущесвует");
+        res.status(404).send({ message: 'Такого пользователя не сущесвует' });
       } else {
         res.status(200).send({ message: data });
       }
@@ -25,35 +26,34 @@ function getCard(req, res) {
 }
 
 function createCard(req, res) {
-  const owner = req.user._id;
+  const owner = req.user.id;
   const { name, link } = req.body;
   Card.create({ name, link, owner })
-  .then((data) => {
-    res.status(200).send({message: data });
-  })
-  .catch((err) => {
-    if (err.name === 'ValidationError'){
-      res.status(ERROR_CODE).send({ message: err.message });
-    }
-    else{
-      res.status(500).send({ message: err.message });
-    }
-  });
+    .then((data) => {
+      res.status(201).send({ message: data });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE).send({ message: err.message });
+      } else {
+        res.status(500).send({ message: err.message });
+      }
+    });
 }
 
 function deleteCard(req, res) {
   Card.findByIdAndRemove(req.params.cardId)
     .then((data) => {
       if (!data) {
-        res.status(404).send({ message:"Такой карточки не сущесвует"});
+        res.status(404).send({ message: 'Такой карточки не сущесвует' });
       } else {
         res.status(200).send({ message: data });
       }
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        res.status(400).send({ message:'Некорректный формат id.'})}
-      else{
+        res.status(400).send({ message: 'Некорректный формат id.' });
+      } else {
         res.status(500).send({ message: err.message });
       }
     });
@@ -62,50 +62,48 @@ function deleteCard(req, res) {
 function likeCard(req, res) {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: req.user._id } },
-    { new: true }
+    { $addToSet: { likes: req.user.id } },
+    { new: true },
   )
     .then((data) => {
       if (!data) {
-        res.status(404).send({ message:"Такой карточки не сущесвует"});
+        res.status(404).send({ message: 'Такой карточки не сущесвует' });
       } else {
         res.status(200).send({ message: data });
       }
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        res.status(400).send({ message:'Некорректный формат id.'})
-      }
-      else if (err.name === 'ValidationError'){
+        res.status(400).send({ message: 'Некорректный формат id.' });
+      } else if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({ message: err.message });
-      }
-      else {
-        res.status(500).send({ message: data });
+      } else {
+        res.status(500).send({ message: err });
       }
     });
 }
 
-const dislikeCard = (req, res) =>
+function dislikeCard(req, res) {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: req.user._id } },
-    { new: true }
+    { $pull: { likes: req.user.id } },
+    { new: true },
   )
     .then((data) => {
       if (!data) {
-        res.status(404).send({ message:"Такой карточки не сущесвует"});
+        res.status(404).send({ message: 'Такой карточки не сущесвует' });
       } else {
         res.status(200).send({ message: data });
       }
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        res.status(400).send({ message:'Некорректный формат id.'})
+        res.status(400).send({ message: 'Некорректный формат id.' });
       } else {
-        res.status(500).send({ message: data });
+        res.status(500).send({ message: err });
       }
     });
-
+}
 module.exports = {
   getCard,
   getCards,
