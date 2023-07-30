@@ -1,5 +1,8 @@
-const User = require('../models/users');
 
+const bcrypt = require('bcrypt');
+const User = require('../models/users');
+const { generateToken } = require('../utils/token');
+const jwt = require('jsonwebtoken');
 const ERROR_CODE = 400;
 function getUsers(_req, res) {
   return User.find({})
@@ -31,19 +34,68 @@ function getUser(req, res) {
     });
 }
 function createUser(req, res) {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((data) => {
-      res.status(201).send({ message: data });
+  if(!req.body){
+    res.status(400).send({ message:'Inavalif request body'});
+    return;
+  }
+
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
+
+  if(!email || !password){
+    res.status(400).send({ message:'Inavalif request body'});
+    return;
+  }
+  bcrypt.hash(password, 10).then((hash) => {
+    User.create({
+      email,
+      password: hash,
+      name,
+      about,
+      avatar,
+    })
+      .then((data) => {
+        res.status(201).send({ message: data });
+      })
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          res.status(ERROR_CODE).send({ message: err.message });
+        } else {
+          res.status(500).send({ message: err.message });
+        }
+      });
+  });
+}
+function login(req, res){
+  const { email, password } = req.body;
+  User.findOne({ email }).select('+password')
+    .then((user) => {
+      if (!user) {
+        //return Promise.reject(new Error('Неправильные почта или пароль'));
+        res.status(400).json({ message:'Неправильные почта или пароль'+ user});
+        return;
+      }
+
+      const result= bcrypt.compare(password, user.password);
+      if(!result){
+        res.status(400).json({message:'Неправильные почта или пароль'+ result});
+        return;
+      }
+      const token = jwt.sign({_id:user._id}, 'secret key', { expiresIn: '7d' });
+      res
+        .cookie('jwt', token).json({token });
+
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send({ message: err.message });
-      } else {
-        res.status(500).send({ message: err.message });
-      }
+      res
+        .status(401)
+        .json({ message: 'член'});
+
     });
-}
+
+};
+
 function updateUser(req, res) {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
@@ -96,4 +148,5 @@ module.exports = {
   createUser,
   updateUser,
   updateAvatar,
+  login,
 };
