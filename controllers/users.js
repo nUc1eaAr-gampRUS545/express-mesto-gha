@@ -38,7 +38,6 @@ function createUser(req, res) {
     res.status(400).send({ message:'Inavalif request body'});
     return;
   }
-
   const {
     email, password, name, about, avatar,
   } = req.body;
@@ -47,29 +46,35 @@ function createUser(req, res) {
     res.status(400).send({ message:'Inavalif request body'});
     return;
   }
-  bcrypt.hash(password, 10).then((hash) => {
-    User.create({
-      email,
-      password: hash,
-      name,
-      about,
-      avatar,
-    })
-      .then((data) => {
-        res.status(201).send({ message: data });
-      })
-      .catch((err) => {
-        if (err.name === 'ValidationError') {
-          res.status(ERROR_CODE).send({ message: err.message });
-        } else {
-          res.status(500).send({ message: err.message });
-        }
-      });
-  });
-}
+  User.findOne({ email })
+  .then((user)=>{
+    if(!user){
+      bcrypt.hash(password, 10).then((hash) => {
+        User.create({
+          email,
+          password: hash,
+          name,
+          about,
+          avatar,
+        })
+    }).then((data) => {
+      res.status(201).json({message:data.email,message:data.password});
+    }).catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE).send({ message: err.message });
+      } else {
+        res.status(500).send({ message: err.message });
+      }
+    });
+  }
+  return  res.status(400).send({ message:'такой емаил уже зарегистрирован'});
+})
+
+
+  }
 function login(req, res){
   const { email, password } = req.body;
-  User.findOne({ email }).select('+password')
+  User.findOne({ email })
     .then((user) => {
       if (!user) {
         //return Promise.reject(new Error('Неправильные почта или пароль'));
@@ -87,6 +92,7 @@ function login(req, res){
         .cookie('jwt', token).json({token });
 
     })
+
     .catch((err) => {
       res
         .status(401)
@@ -145,8 +151,8 @@ function updateAvatar(req, res) {
 module.exports = {
   getUser,
   getUsers,
-  createUser,
   updateUser,
   updateAvatar,
   login,
+  createUser
 };

@@ -9,11 +9,12 @@ const { checkToken } =  require('../utils/token');
 
     return ;
   }*/
-  /*const token = req.cookies.jwt;
+  const token = req.cookies.jwt;
   const result = checkToken(token)
   if(!result){
-    res.status(401).send({message:'Некорректный токен'})
-  }*/
+    res.status(401).send({message:'Некорректный токен'});
+    return;
+  }
   next()
 }
 module.exports={ authentiacateUser }
