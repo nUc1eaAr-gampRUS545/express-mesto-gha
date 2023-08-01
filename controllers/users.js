@@ -69,7 +69,7 @@ function createUser(req, res,next) {
 
     });
   }
-
+  next(new ErrorBadRequest('Пользователь с такой почтой уже зарегистрирован.'))
 })
 
 
