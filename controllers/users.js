@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
 /* eslint-disable consistent-return */
 const bcrypt = require('bcrypt');
@@ -45,7 +46,6 @@ function createUser(req, res, next) {
   if (!email || !password) {
     return Promise.reject(new ErrorBadRequest('Неверное тело запроса'));
   }
-
   userSchema.findOne({ email })
     .then((user) => {
       if (!user) {
@@ -59,9 +59,11 @@ function createUser(req, res, next) {
               avatar,
             });
           })
-          .then(() => res.status(201).send({
-            message: user,
-          }))
+          .then((user) => {
+            res.status(201).send({
+              message: user,
+            });
+          })
           .catch((err) => {
             if (err.name === 'MongoServerError' || err.code === 11000) {
               next(new ErrorBadRequest('Пользователь с такой почтой уже зарегистрирован.'));
@@ -70,8 +72,13 @@ function createUser(req, res, next) {
             }
           });
       }
+      next(new ErrorBadRequest('ValidationError'));
+    })
+    .catch(() => {
+      next(new ErrorBadRequest('ValidationError'));
     });
 }
+
 function login(req, res) {
   const { email, password } = req.body;
   userSchema.findOne({ email }).select('+password')
