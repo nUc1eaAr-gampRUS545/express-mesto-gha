@@ -40,6 +40,9 @@ function createUser(req, res,next) {
   const {
     email, password,name,about,avatar
   } = req.body;
+  if(!email || !password){
+    next(new ErrorBadRequest('Неверное тело запроса'));
+  }
   User.findOne({ email })
   .then((user)=>{
     if(!user){
