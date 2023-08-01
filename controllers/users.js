@@ -37,15 +37,15 @@ function getUser(req, res, next) {
     });
 }
 function createUser(req, res, next) {
-  if (!req.body) {
+  /* if (!req.body) {
     return Promise.reject(new ErrorBadRequest('Неверное тело запроса'));
-  }
+  } */
   const {
     email, password, name, about, avatar,
   } = req.body;
-  if (!email || !password) {
+  /* if (!email || !password) {
     return Promise.reject(new ErrorBadRequest('Неверное тело запроса'));
-  }
+  } */
   userSchema.findOne({ email })
     .then((user) => {
       if (!user) {
