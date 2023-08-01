@@ -5,7 +5,6 @@ const JWT = require('jsonwebtoken');
   const token = req.cookies.jwt;
   if(!token){
     next(new Unauthorized('Необходима авторизация'))
-    return;
   }
   let payload;
   try {

@@ -1,1 +1,4 @@
-const regexp=/^[A-Za-z0-9\ %&_-+]+(@[A-Za-z0-9\ %&_-+]+.)[a-z]{2,}$/
+const regExp=/^[a-zA-Z0-9\._%+-]+@([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+
+module.exports=
+  regExp;

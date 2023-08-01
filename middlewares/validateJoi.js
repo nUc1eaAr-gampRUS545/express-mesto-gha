@@ -1,12 +1,12 @@
 const { celebrate, Joi } = require('celebrate');
-const regexp=/^[A-Za-z0-9\ %&_-+]+(@[A-Za-z0-9\ %&_-+]+\.)[a-zA-Z]{2,}$/;
+const regExp=require('../utils/regExp')
 const validateCreateUser = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(regexp),
+    avatar: Joi.string().pattern(regExp),
   }),
 });
 
@@ -32,14 +32,14 @@ const validateUserUpdate = celebrate({
 
 const validateUserAvatar = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().pattern(regexp),
+    avatar: Joi.string().required().pattern(regExp),
   }),
 });
 
 const validateCardPost = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().pattern(regexp)})
+    link: Joi.string().required().pattern(regExp)})
   });
 
 
