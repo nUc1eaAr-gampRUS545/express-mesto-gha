@@ -1,25 +1,25 @@
 
 const bcrypt = require('bcrypt');
 const User = require('../models/users');
-const { generateToken } = require('../utils/token');
-const jwt = require('jsonwebtoken');
-const ERROR_CODE = 400;
-function getUsers(_req, res) {
+
+const NotFoundError=require('../utils/errors/not-found-error');
+const ErrorBadRequest=require('../utils/errors/invalid-request');
+const IntervalServerError=require('../utils/errors/server-error');
+const Unauthorized=require('../utils/errors/unauthorized')
+function getUsers(_req, res,next) {
   return User.find({})
     .then((data) => res.status(200).send(data))
     .catch((data) => {
-      res.status(500).send({ message: data });
+      next(new IntervalServerError('Server Error'));
     });
 }
 
-function getUser(req, res) {
+function getUser(req, res,next) {
   const { userId } = req.params;
   return User.findById(userId)
     .then((data) => {
       if (!data) {
-        res
-          .status(404)
-          .send({ message: 'Пользователь по указанному id не найден.' });
+        next(new NotFoundError('Пользователь по указанному id не найден.'))
       } else {
         res.status(200).send({ message: data });
       }
@@ -27,77 +27,73 @@ function getUser(req, res) {
 
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        res.status(400).send({ message: 'Некорректный формат id.' });
+        next(new ErrorBadRequest('Некорректный формат id.'))
       } else {
-        res.status(500).send({ message: err.message });
+        next(new IntervalServerError('Server Error'));
       }
     });
 }
-function createUser(req, res) {
+function createUser(req, res,next) {
   if(!req.body){
-    res.status(400).send({ message:'Inavalif request body'});
-    return;
+    next(new ErrorBadRequest('Неверное тело запроса'));
   }
   const {
-    email, password, name, about, avatar,
+    email, password,name,about,avatar
   } = req.body;
-
-  if(!email || !password){
-    res.status(400).send({ message:'Inavalif request body'});
-    return;
-  }
   User.findOne({ email })
   .then((user)=>{
     if(!user){
-      bcrypt.hash(password, 10).then((hash) => {
+      bcrypt.hash(password, 10)
+      .then((hash)=>{
         User.create({
-          email,
-          password: hash,
-          name,
-          about,
-          avatar,
+            email,
+            password: hash,
+            name,
+            about,
+            avatar,
         })
-    }).then((data) => {
-      res.status(201).json({message:data.email,message:data.password});
-    }).catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send({ message: err.message });
-      } else {
-        res.status(500).send({ message: err.message });
+      })
+      .then((user) => res.status(201).send({
+        message:user
+      }))
+    .catch((err) => {
+      if (err.name === 'MongoServerError' || err.code === 11000) {
+        next(new ErrorBadRequest('Пользователь с такой почтой уже зарегистрирован.'))
       }
+      else if  (err.name === 'ValidationError') {
+        next(new ErrorBadRequest('ValidationError'))
+      }
+
     });
   }
-  return  res.status(400).send({ message:'такой емаил уже зарегистрирован'});
+
 })
 
 
   }
-function login(req, res){
+function login(req, res,next){
   const { email, password } = req.body;
   User.findOne({ email })
     .then((user) => {
       if (!user) {
-        //return Promise.reject(new Error('Неправильные почта или пароль'));
-        res.status(400).json({ message:'Неправильные почта или пароль'+ user});
-        return;
+        next(new ErrorBadRequest('Неправильный логин или пароль'))
       }
 
       const result= bcrypt.compare(password, user.password);
       if(!result){
-        res.status(400).json({message:'Неправильные почта или пароль'+ result});
-        return;
+        next(new ErrorBadRequest('Неправильный логин или пароль'))
       }
-      const token = jwt.sign({_id:user._id}, 'secret key', { expiresIn: '7d' });
+      const token = jwt.sign({payload:user._id},'some-secret-key', { expiresIn: '7d' });
       res
-        .cookie('jwt', token).json({token });
+        .cookie('jwt', token, {
+          maxage: 3600000 * 24 * 7,
+          httpOnly: true,
+        }).json({ message: 'Успешная авторизация.' });
 
     })
 
     .catch((err) => {
-      res
-        .status(401)
-        .json({ message: 'член'});
-
+      next(new Unauthorized('Необходима авторизация'))
     });
 
 };
@@ -111,20 +107,20 @@ function updateUser(req, res) {
   )
     .then((data) => {
       if (!data) {
-        res.status(404).send({ message: 'Пользователь по указанному id не найден.' });
+        next(new NotFoundError("Пользователь по указанному id не найден."))
       } else {
         res.status(200).send({ message: { name, about } });
       }
     })
     .catch((data) => {
       if (data.name === 'ValidationError') {
-        res.status(400).send({ message: data.name });
+        next(new ErrorBadRequest("ValidationError"));
       } else {
-        res.status(500).send({ message: data });
+        next(new IntervalServerError('Server Error'));
       }
     });
 }
-function updateAvatar(req, res) {
+function updateAvatar(req, res,next) {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -133,18 +129,16 @@ function updateAvatar(req, res) {
   )
     .then((data) => {
       if (!data) {
-        res
-          .status(404)
-          .send({ message: 'Пользователь по указанному id не найден.' });
+        next(new NotFoundError('Пользователь по указанному id не найден.'));
       } else {
         res.status(200).send({ message: { avatar } });
       }
     })
     .catch((data) => {
       if (data.name === 'ValidationError') {
-        res.status(400).send({ message: data });
+        next(new ErrorBadRequest('ValidationError'))
       } else {
-        res.status(500).send({ message: data });
+        next(new IntervalServerError('Server Error'));
       }
     });
 }

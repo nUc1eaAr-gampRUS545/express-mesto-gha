@@ -1,31 +1,34 @@
 const Card = require('../models/cards');
 
-const ERROR_CODE = 400;
-function getCards(_req, res) {
+const NotFoundError=require('../utils/errors/not-found-error');
+const ErrorBadRequest=require('../utils/errors/invalid-request');
+const IntervalServerError=require('../utils/errors/server-error');
+
+function getCards(_req, res,next) {
   return Card.find({})
     .then((data) => {
-      res.status(200).send({ message: data });
+      res.status(200).send(data);
     })
     .catch((data) => {
-      res.status(500).send({ massege: data });
+      next(new IntervalServerError('Server Error'));
     });
 }
 
-function getCard(req, res) {
+function getCard(req, res,next) {
   return Card.findById(req.params.cardId)
     .then((data) => {
       if (!data) {
-        res.status(404).send({ message: 'Такого пользователя не сущесвует' });
+        next(new NotFoundError('Такого пользователя не сущесвует'))
       } else {
         res.status(200).send({ message: data });
       }
     })
     .catch((data) => {
-      res.status(500).send({ massege: data });
+      next(new IntervalServerError('Server Error'));
     });
 }
 
-function createCard(req, res) {
+function createCard(req, res,next) {
   const owner = req.user._id;
   const { name, link } = req.body;
   Card.create({ name, link, owner })
@@ -34,32 +37,32 @@ function createCard(req, res) {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send({ message: err.message });
+        next(new ErrorBadRequest('Неверное тело запроса'));
       } else {
-        res.status(500).send({ message: err.message });
+        next(new IntervalServerError('Server Error'));
       }
     });
 }
 
-function deleteCard(req, res) {
+function deleteCard(req, res, next) {
   Card.findByIdAndRemove(req.params.cardId)
     .then((data) => {
       if (!data) {
-        res.status(404).send({ message: 'Такой карточки не сущесвует' });
+       next(new NotFoundError('ты ошибся'))
       } else {
         res.status(200).send({ message: data });
       }
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        res.status(400).send({ message: 'Некорректный формат id.' });
+        next(new ErrorBadRequest('Неверное тело запроса'));
       } else {
-        res.status(500).send({ message: err.message });
+        next(new IntervalServerError('Server Error'));
       }
     });
 }
 
-function likeCard(req, res) {
+function likeCard(req, res,next) {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -67,23 +70,23 @@ function likeCard(req, res) {
   )
     .then((data) => {
       if (!data) {
-        res.status(404).send({ message: 'Такой карточки не сущесвует' });
+       next(new NotFoundError('Такой карточки не сущесвует'))
       } else {
         res.status(200).send({ message: data });
       }
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        res.status(400).send({ message: 'Некорректный формат id.' });
+        next(new ErrorBadRequest('Неверное тело запроса'));
       } else if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send({ message: err.message });
+        next(new ErrorBadRequest('Неверное тело запроса'));
       } else {
-        res.status(500).send({ message: err });
+        next(new IntervalServerError('Server Error'));
       }
     });
 }
 
-function dislikeCard(req, res) {
+function dislikeCard(req, res,next) {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -91,16 +94,16 @@ function dislikeCard(req, res) {
   )
     .then((data) => {
       if (!data) {
-        res.status(404).send({ message: 'Такой карточки не сущесвует' });
+        next(new NotFoundError('Такой карточки не сущесвует'))
       } else {
         res.status(200).send({ message: data });
       }
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        res.status(400).send({ message: 'Некорректный формат id.' });
+        next(new ErrorBadRequest('Неверное тело запроса'));
       } else {
-        res.status(500).send({ message: err });
+        next(new IntervalServerError('Server Error'));
       }
     });
 }

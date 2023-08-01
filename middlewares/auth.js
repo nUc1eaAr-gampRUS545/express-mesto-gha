@@ -1,20 +1,23 @@
 
-// eslint-disable-next-line no-unused-vars
-const { checkToken } =  require('../utils/token');
-
+const Unauthorized=require('../utils/errors/unauthorized')
+const JWT = require('jsonwebtoken');
  function authentiacateUser(req,res,next){
-  /*const { authorization } = req.headers;
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    res.status(400).send({message:'Необходима авторизация'});
-
-    return ;
-  }*/
   const token = req.cookies.jwt;
-  const result = checkToken(token)
-  if(!result){
-    res.status(401).send({message:'Некорректный токен'});
+  if(!token){
+    next(new Unauthorized('Необходима авторизация'))
     return;
   }
-  next()
+  let payload;
+  try {
+    payload = JWT.verify(token,'some-secret-key');
+
+
+  } catch (err) {
+    next(new Unauthorized('Необходима авторизация'))
+  }
+  req.user=payload;
+  next();
+
+
 }
 module.exports={ authentiacateUser }
