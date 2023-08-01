@@ -13,6 +13,7 @@ const routesCards = require('./routes/cards');
 const routesUsers = require('./routes/users');
 const { createUser, login } = require('./controllers/users');
 const { authentiacateUser } = require('./middlewares/auth');
+const { validateCreateUser, validateUserLogin } = require('./middlewares/validateJoi');
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', { useNewUrlParser: true, useUnifiedTopology: false });
 
@@ -20,8 +21,8 @@ app.use(bodyParser.json());
 app.use(cookies());
 app.use(cors());
 app.use(express.json());
-app.post('/signup', createUser);
-app.post('/signin', login);
+app.post('/signup', validateCreateUser, createUser);
+app.post('/signin', validateUserLogin, login);
 
 app.use('/users', authentiacateUser, routesUsers);
 app.use('/cards', authentiacateUser, routesCards);
