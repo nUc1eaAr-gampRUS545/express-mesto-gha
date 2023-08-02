@@ -46,7 +46,7 @@ function createUser(req, res, next) {
   /* if (!email || !password) {
     return Promise.reject(new ErrorBadRequest('Неверное тело запроса'));
   } */
-  userSchema.findOne({ email })
+  userSchema.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
         bcrypt.hash(password, 10)
@@ -75,7 +75,7 @@ function createUser(req, res, next) {
       next(new ErrorBadRequest('ValidationError'));
     })
     .catch(() => {
-      next(new ErrorBadRequest('ValidationError'));
+      res.status(409).send({ message: 'Пользователь с такой почтой уже зарегистрирован.' });
     });
 }
 
@@ -85,7 +85,7 @@ function login(req, res) {
     .then((user) => {
       if (!user) {
         // return Promise.reject(new Error('Неправильные почта или пароль'));
-        return res.status(400).json({ message: `Неправильные почта или пароль${user}` });
+        return res.status(401).json({ message: 'Неправильные почта или пароль' });
       }
 
       const result = bcrypt.compare(password, user.password);
@@ -102,7 +102,7 @@ function login(req, res) {
 
     .catch(() => res
       .status(401)
-      .json({ message: 'член' }));
+      .json({ message: 'Неправильные почта или пароль' }));
 }
 function getUserInfo(req, res, next) {
   userSchema.findById(req.user._id).orFail()
