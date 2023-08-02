@@ -72,8 +72,8 @@ function login(req, res, next) {
   userSchema.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        // return Promise.reject(new Error('Неправильные почта или пароль'));
         next(new ErrorBadRequest('Неправильные почта или пароль'));
+        return;
       }
 
       return bcrypt.compare(password, user.password)
@@ -87,10 +87,13 @@ function login(req, res, next) {
               maxage: 3600000 * 24 * 7,
               httpOnly: true,
             }).json({ message: 'Успешная авторизация.' });
+        })
+        .catch((err) => {
+          next(err);
         });
     })
     .catch((err) => {
-      next(new Unauthorized(err));
+      next(err);
     });
 }
 function getUserInfo(req, res, next) {
