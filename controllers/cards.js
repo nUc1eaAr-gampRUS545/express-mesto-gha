@@ -1,34 +1,34 @@
 const Card = require('../models/cards');
 
-const NotFoundError=require('../utils/errors/not-found-error');
-const ErrorBadRequest=require('../utils/errors/invalid-request');
-const IntervalServerError=require('../utils/errors/errorHandler');
+const NotFoundError = require('../utils/errors/not-found-error');
+const ErrorBadRequest = require('../utils/errors/invalid-request');
+const IntervalServerError = require('../utils/errors/errorHandler');
 
-function getCards(_req, res,next) {
+function getCards(_req, res, next) {
   return Card.find({})
     .then((data) => {
       res.status(200).send(data);
     })
-    .catch((data) => {
+    .catch(() => {
       next(new IntervalServerError('Server Error'));
     });
 }
 
-function getCard(req, res,next) {
+function getCard(req, res, next) {
   return Card.findById(req.params.cardId)
     .then((data) => {
       if (!data) {
-        next(new NotFoundError('Такого пользователя не сущесвует'))
+        next(new NotFoundError('Такого пользователя не сущесвует'));
       } else {
         res.status(200).send({ message: data });
       }
     })
-    .catch((data) => {
+    .catch(() => {
       next(new IntervalServerError('Server Error'));
     });
 }
 
-function createCard(req, res,next) {
+function createCard(req, res, next) {
   const owner = req.user._id;
   const { name, link } = req.body;
   Card.create({ name, link, owner })
@@ -45,24 +45,27 @@ function createCard(req, res,next) {
 }
 
 function deleteCard(req, res, next) {
-  Card.findByIdAndRemove(req.params.cardId)
+  return Card.findById(req.params.cardId)
     .then((data) => {
       if (!data) {
-       next(new NotFoundError('ты ошибся'))
-      } else {
-        res.status(200).send({ message: data });
+        throw new NotFoundError('ты ошибся');
       }
+      if (!data.owner.equals(req.user._id)) {
+        throw new NotFoundError('ты ошибся');
+      }
+      data.deleteOne()
+        .then(() => res.status(200).send({ message: data }).catch(next));
     })
     .catch((err) => {
-      if (err.kind === 'ObjectId') {
+      if (err.kind === 'CastError') {
         next(new ErrorBadRequest('Неверное тело запроса'));
       } else {
-        next(new IntervalServerError('Server Error'));
+        next(err);
       }
     });
 }
 
-function likeCard(req, res,next) {
+function likeCard(req, res, next) {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -70,7 +73,7 @@ function likeCard(req, res,next) {
   )
     .then((data) => {
       if (!data) {
-       next(new NotFoundError('Такой карточки не сущесвует'))
+        next(new NotFoundError('Такой карточки не сущесвует'));
       } else {
         res.status(200).send({ message: data });
       }
@@ -86,7 +89,7 @@ function likeCard(req, res,next) {
     });
 }
 
-function dislikeCard(req, res,next) {
+function dislikeCard(req, res, next) {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -94,7 +97,7 @@ function dislikeCard(req, res,next) {
   )
     .then((data) => {
       if (!data) {
-        next(new NotFoundError('Такой карточки не сущесвует'))
+        next(new NotFoundError('Такой карточки не сущесвует'));
       } else {
         res.status(200).send({ message: data });
       }
