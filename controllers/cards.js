@@ -2,7 +2,7 @@ const Card = require('../models/cards');
 
 const NotFoundError=require('../utils/errors/not-found-error');
 const ErrorBadRequest=require('../utils/errors/invalid-request');
-const IntervalServerError=require('../utils/errors/server-error');
+const IntervalServerError=require('../utils/errors/errorHandler');
 
 function getCards(_req, res,next) {
   return Card.find({})

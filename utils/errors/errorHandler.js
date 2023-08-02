@@ -1,8 +1,9 @@
-/* eslint-disable no-unused-vars */
-function errorHandler(err, _req, res, next) {
-  const statusCode = err.statusCode || 500;
-  const message = statusCode === 500 ? 'На сервере произощла ошибка' : err.message;
-  res.status(statusCode).send({ message });
-  next();
+class errorHandler extends Error {
+  constructor(message) {
+    super(message);
+    this.message = (`500 Server Error— ${message}`);
+    this.statusCode = 500;
+  }
 }
+
 module.exports = errorHandler;

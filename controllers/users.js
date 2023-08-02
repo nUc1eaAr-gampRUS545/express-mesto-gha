@@ -7,7 +7,7 @@ const NotFoundError = require('../utils/errors/not-found-error');
 // const Unauthorized = require('../utils/errors/unauthorized');
 const userSchema = require('../models/users');
 const ErrorBadRequest = require('../utils/errors/invalid-request');
-const IntervalServerError = require('../utils/errors/server-error');
+const IntervalServerError = require('../utils/errors/errorHandler');
 const Unauthorized = require('../utils/errors/unauthorized');
 
 function getUsers(_req, res, next) {

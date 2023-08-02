@@ -5,7 +5,6 @@ const bodyParser = require('body-parser');
 const cookies = require('cookie-parser');
 const { errors } = require('celebrate');
 const cors = require('cors');
-const { errorHandler } = require('./utils/errors/errorHandler');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -21,6 +20,7 @@ app.use(bodyParser.json());
 app.use(cookies());
 app.use(cors());
 app.use(express.json());
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb', { useNewUrlParser: true, useUnifiedTopology: false });
 app.use(errors());
 app.use((_req, _res, next) => {
   next(new NotFoundError('Данная страница по этому маршруту не найдена'));
@@ -31,7 +31,6 @@ app.post('/signin', validateUserLogin, login);
 app.use('/users', authentiacateUser, routesUsers);
 app.use('/cards', authentiacateUser, routesCards);
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb', { useNewUrlParser: true, useUnifiedTopology: false });
 app.listen(PORT, () => {
-  errorHandler();
+  console.log('Сервер запущен');
 });
