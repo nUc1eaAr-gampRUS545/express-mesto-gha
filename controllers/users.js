@@ -9,6 +9,7 @@ const userSchema = require('../models/users');
 const ErrorBadRequest = require('../utils/errors/invalid-request');
 const IntervalServerError = require('../utils/errors/errorHandler');
 const Unauthorized = require('../utils/errors/unauthorized');
+const ConflictError = require('../utils/errors/ConflictError');
 
 function getUsers(_req, res, next) {
   return userSchema.find({})
@@ -41,27 +42,28 @@ function createUser(req, res, next) {
   const {
     email, password, name, about, avatar,
   } = req.body;
-
-  userSchema.findOne({ email }).select('+password')
-    .then((user) => {
-      if (!user) {
-        bcrypt.hash(password, 10)
-          .then((hash) => {
-            userSchema.create({
-              email,
-              password: hash,
-              name,
-              about,
-              avatar,
-            });
-          });
-      }
+  bcrypt.hash(password, 10)
+    .then((hash) => {
+      userSchema.create({
+        email,
+        password: hash,
+        name,
+        about,
+        avatar,
+      });
     })
+
     .then(() => res.send({
       name, about, avatar, email,
     }))
-    .catch(() => {
-      res.status(409).send({ message: 'Пользователь с такой почтой уже зарегистрирован.' });
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с таким email уже существует'));
+      } else if (err.name === 'Validation Error') {
+        next(new ErrorBadRequest(err));
+      } else {
+        next(err);
+      }
     });
 }
 
