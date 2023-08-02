@@ -3,6 +3,9 @@ const Unauthorized = require('../utils/errors/unauthorized');
 
 function authentiacateUser(req, res, next) {
   const token = req.cookies.jwt;
+  if (!token) {
+    throw new Unauthorized('Необходима авторизация.');
+  }
   let payload;
   try {
     payload = JWT.verify(token, 'some-secret-key');
