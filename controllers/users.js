@@ -57,11 +57,9 @@ function createUser(req, res, next) {
           });
       }
     })
-    .then(() => {
-      res.status(201).send({
-        message: 'Пользователь добавлен',
-      });
-    })
+    .then(() => res.send({
+      name, about, avatar, email,
+    }))
     .catch(() => {
       res.status(409).send({ message: 'Пользователь с такой почтой уже зарегистрирован.' });
     });
