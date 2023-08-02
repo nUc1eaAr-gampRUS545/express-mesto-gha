@@ -74,16 +74,18 @@ function login(req, res, next) {
         next(new ErrorBadRequest('Неправильные почта или пароль'));
       }
 
-      const result = bcrypt.compare(password, user.password);
-      if (!result) {
-        next(new ErrorBadRequest('Неправильные почта или пароль'));
-      }
-      const token = jwt.sign({ payload: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      res
-        .cookie('jwt', token, {
-          maxage: 3600000 * 24 * 7,
-          httpOnly: true,
-        }).json({ message: 'Успешная авторизация.' });
+      return bcrypt.compare(password, user.password)
+        .then((result) => {
+          if (!result) {
+            next(new ErrorBadRequest('Неправильные почта или пароль'));
+          }
+          const token = jwt.sign({ payload: user._id }, 'some-secret-key', { expiresIn: '7d' });
+          res
+            .cookie('jwt', token, {
+              maxage: 3600000 * 24 * 7,
+              httpOnly: true,
+            }).json({ message: 'Успешная авторизация.' });
+        });
     })
     .catch((err) => {
       next(new Unauthorized(err));
