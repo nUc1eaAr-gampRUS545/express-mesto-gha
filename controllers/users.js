@@ -38,15 +38,9 @@ function getUser(req, res, next) {
     });
 }
 function createUser(req, res, next) {
-  /* if (!req.body) {
-    return Promise.reject(new ErrorBadRequest('Неверное тело запроса'));
-  } */
   const {
     email, password, name, about, avatar,
   } = req.body;
-  /* if (!email || !password) {
-    return Promise.reject(new ErrorBadRequest('Неверное тело запроса'));
-  } */
   userSchema.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
@@ -62,15 +56,13 @@ function createUser(req, res, next) {
           })
           .then((user) => {
             res.status(201).send({
-              message: user,
+              data: {
+                name, about, avatar, email,
+              },
             });
           })
           .catch((err) => {
-            if (err.name === 'MongoServerError' || err.code === 11000) {
-              next(new ErrorBadRequest('Пользователь с такой почтой уже зарегистрирован.'));
-            } else if (err.name === 'ValidationError') {
-              next(new ErrorBadRequest('ValidationError'));
-            }
+            next(err);
           });
       }
       next(new ErrorBadRequest('ValidationError'));
