@@ -1,5 +1,4 @@
 const routes = require('express').Router();
-const { errors } = require('celebrate');
 const {
   validateUserId, validateUserUpdate, validateUserAvatar,
 } = require('../middlewares/validateJoi');
@@ -12,6 +11,5 @@ routes.get('/me', validateUserUpdate, getUserInfo);
 routes.get('/:userId', validateUserId, getUser);
 routes.patch('/me', validateUserUpdate, updateUser);
 routes.patch('/me/avatar', validateUserAvatar, updateAvatar);
-routes.use(errors());
 
 module.exports = routes;
