@@ -41,6 +41,7 @@ function createUser(req, res, next) {
   const {
     email, password, name, about, avatar,
   } = req.body;
+
   userSchema.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
@@ -53,19 +54,13 @@ function createUser(req, res, next) {
               about,
               avatar,
             });
-          })
-          .then((user) => {
-            res.status(201).send({
-              data: {
-                name, about, avatar, email,
-              },
-            });
-          })
-          .catch((err) => {
-            next(err);
           });
       }
-      next(new ErrorBadRequest('ValidationError'));
+    })
+    .then(() => {
+      res.status(201).send({
+        message: 'Пользователь добавлен',
+      });
     })
     .catch(() => {
       res.status(409).send({ message: 'Пользователь с такой почтой уже зарегистрирован.' });
