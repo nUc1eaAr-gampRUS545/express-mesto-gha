@@ -8,6 +8,7 @@ const NotFoundError = require('../utils/errors/not-found-error');
 const userSchema = require('../models/users');
 const ErrorBadRequest = require('../utils/errors/invalid-request');
 const IntervalServerError = require('../utils/errors/server-error');
+const Unauthorized = require('../utils/errors/unauthorized');
 
 function getUsers(_req, res, next) {
   return userSchema.find({})
@@ -79,18 +80,18 @@ function createUser(req, res, next) {
     });
 }
 
-function login(req, res) {
+function login(req, res, next) {
   const { email, password } = req.body;
   userSchema.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
         // return Promise.reject(new Error('Неправильные почта или пароль'));
-        return res.status(401).json({ message: 'Неправильные почта или пароль' });
+        next(new ErrorBadRequest('Неправильные почта или пароль'));
       }
 
       const result = bcrypt.compare(password, user.password);
       if (!result) {
-        return res.status(400).json({ message: 'Неправильные почта или пароль' });
+        next(new ErrorBadRequest('Неправильные почта или пароль'));
       }
       const token = jwt.sign({ payload: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res
@@ -99,17 +100,23 @@ function login(req, res) {
           httpOnly: true,
         }).json({ message: 'Успешная авторизация.' });
     })
-
-    .catch(() => res
-      .status(401)
-      .json({ message: 'Неправильные почта или пароль' }));
+    .catch((err) => {
+      next(new Unauthorized(err));
+    });
 }
 function getUserInfo(req, res, next) {
-  userSchema.findById(req.user._id).orFail()
+  userSchema.findById(req.user._id)
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
       res.send(user);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new ErrorBadRequest('Ошибка данных'));
+      } else {
+        next(err);
+      }
+    });
 }
 
 function updateUser(req, res, next) {
