@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookies = require('cookie-parser');
-// const { celebrate, Joi } = require('celebrate');
+const { errors } = require('celebrate');
 const cors = require('cors');
 
 const { PORT = 3000 } = process.env;
@@ -30,7 +30,7 @@ app.use('/cards', authentiacateUser, routesCards);
 app.use((_req, res) => {
   res.status(404).send({ message: 'Страница по указанному маршруту не найдена' });
 });
-
+app.use(errors());
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log('Сервер запущен');
