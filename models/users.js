@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose');
 const validator = require('validator');
 
@@ -45,6 +44,5 @@ const userSchema = new mongoose.Schema({
 }, {
   versionKey: false,
 });
-
 
 module.exports = mongoose.model('user', userSchema);
