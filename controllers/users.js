@@ -25,14 +25,12 @@ function getUser(req, res, next) {
     .then((data) => {
       if (!data) {
         next(new NotFoundError('Пользователь по указанному id не найден.'));
-      } else {
-        res.status(200).send({ message: data });
       }
+      res.status(200).send({ message: data });
     })
-
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        next(new ErrorBadRequest('Некорректный формат id.'));
+        next(new NotFoundError('Некорректный формат id.'));
       } else {
         next(new IntervalServerError('Server Error'));
       }
@@ -53,13 +51,12 @@ function createUser(req, res, next) {
       }).then(() => res.send({
         name, about, avatar, email,
       })).catch(() => {
-        next(new ConflictError('Пользователь с таким email уже существует'));
+        next(new ConflictError('Пользователь с таким email уже существует1'));
       });
     })
-
     .catch((err) => {
       if (err.code === 11000) {
-        next(new ConflictError('Пользователь с таким email уже существует'));
+        next(new ConflictError('Пользователь с таким email уже существует2'));
       } else if (err.name === 'Validation Error') {
         next(new ErrorBadRequest(err));
       } else {

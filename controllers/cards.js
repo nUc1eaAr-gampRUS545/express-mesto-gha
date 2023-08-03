@@ -29,11 +29,11 @@ function getCard(req, res, next) {
 }
 
 function createCard(req, res, next) {
-  const owner = req.user._id;
+  const owner = req.user.payload;
   const { name, link } = req.body;
   Card.create({ name, link, owner })
-    .then((data) => {
-      res.status(201).send({ message: data });
+    .then(() => {
+      res.status(201).send({ message: owner });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
