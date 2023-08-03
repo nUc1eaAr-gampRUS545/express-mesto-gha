@@ -9,9 +9,7 @@ function getCards(_req, res, next) {
     .then((data) => {
       res.status(200).send(data);
     })
-    .catch(() => {
-      next(new IntervalServerError('Server Error'));
-    });
+    .catch(next);
 }
 
 function getCard(req, res, next) {
@@ -23,8 +21,8 @@ function getCard(req, res, next) {
         res.status(200).send({ message: data });
       }
     })
-    .catch(() => {
-      next(new IntervalServerError('Server Error'));
+    .catch((err) => {
+      next(err);
     });
 }
 
@@ -33,13 +31,13 @@ function createCard(req, res, next) {
   const { name, link } = req.body;
   Card.create({ name, link, owner })
     .then((data) => {
-      res.status(201).send({ message: data.owner._id });
+      res.status(201).send(data);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ErrorBadRequest('Неверное тело запроса'));
       } else {
-        next(new IntervalServerError('Server Error'));
+        next(err);
       }
     });
 }
@@ -49,10 +47,10 @@ function deleteCard(req, res, next) {
     .orFail(() => new ErrorBadRequest('Карточка по данному id не найдена'))
     .then((card) => {
       if (card.owner._id.toString() === req.user.payload) {
-        return card.remove()
+        return card.deleteOne()
           .then(() => res.send({ message: 'Карточка удалена' }));
       }
-      return res.status(409).send({ message: 'Недостаточно прав для удаления карточки' });
+      return res.status(403).send({ message: 'Недостаточно прав для удаления карточки' });
     })
     .catch(next);
 }

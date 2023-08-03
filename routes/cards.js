@@ -10,7 +10,7 @@ const {
 routes.post('/', validateCardPost, createCard);
 routes.get('/', getCards);
 routes.get('/:cardId', validateCardId, getCard);
-routes.delete('/', validateCardId, deleteCard);
+routes.delete('/:cardId', validateCardId, deleteCard);
 routes.put('/:cardId/likes', validateCardId, likeCard);
 routes.delete('/:cardId/likes', validateCardId, dislikeCard);
 

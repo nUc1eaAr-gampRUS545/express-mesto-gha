@@ -24,13 +24,13 @@ function getUser(req, res, next) {
   userSchema.findById(userId)
     .then((data) => {
       if (!data) {
-        next(new NotFoundError('Пользователь по указанному id не найден.'));
+        return next(new NotFoundError('Пользователь по указанному id не найден.'));
       }
       res.status(200).send({ message: data });
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        next(new NotFoundError('Некорректный формат id.'));
+        next(new ErrorBadRequest('Некорректный формат id.'));
       } else if (err.error === 'Bad Request') {
         next(new NotFoundError('Некорректный формат id.'));
       } else {
@@ -50,14 +50,14 @@ function createUser(req, res, next) {
         name,
         about,
         avatar,
-      }).then(() => res.send({
-        name, about, avatar, email,
-      })).catch(() => res.status(409).send({ message: 'Пользователь с таким email уже существует' }));
+      }).then((user) => res.send({
+        name: user.name, about: user.about, avatar: user.avatar, email: user.email,
+      }));
     })
     .catch((err) => {
       if (err.code === 11000) {
         next(new ConflictError('Пользователь с таким email уже существует'));
-      } else if (err.name === 'Validation Error') {
+      } else if (err.name === 'ValidationError') {
         next(new ErrorBadRequest(err));
       } else {
         next(err);
@@ -70,12 +70,12 @@ function login(req, res, next) {
   userSchema.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return res.status(401).send({ message: 'Неправильные почта или пароль' });
+        return next(new Unauthorized('Неправильные почта или пароль'));
       }
       return bcrypt.compare(password, user.password)
         .then((result) => {
           if (!result) {
-            return res.status(401).send({ message: 'Неправильные почта или пароль' });
+            return next(new Unauthorized('Неправильные почта или пароль'));
           }
           const token = jwt.sign({ payload: user._id }, 'some-secret-key', { expiresIn: '7d' });
           res
@@ -97,7 +97,9 @@ function getUserInfo(req, res, next) {
     .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
       res.status(200).send(
-        { name: user.name, about: user.about, avatar: user.avatar },
+        {
+          email: user.email, name: user.name, about: user.about, avatar: user.avatar,
+        },
       );
     })
     .catch((err) => {
@@ -120,14 +122,14 @@ function updateUser(req, res, next) {
       if (!data) {
         next(new NotFoundError('Пользователь по указанному id не найден.'));
       } else {
-        res.status(200).send({ message: { name, about } });
+        res.status(200).send({ data });
       }
     })
     .catch((data) => {
       if (data.name === 'ValidationError') {
         next(new ErrorBadRequest('ValidationError'));
       } else {
-        next(new IntervalServerError('Server Error'));
+        next(data);
       }
     });
 }
@@ -142,14 +144,14 @@ function updateAvatar(req, res, next) {
       if (!data) {
         next(new NotFoundError('Пользователь по указанному id не найден.'));
       } else {
-        res.status(200).send({ message: { avatar } });
+        res.status(200).send({ data });
       }
     })
     .catch((data) => {
       if (data.name === 'ValidationError') {
         next(new ErrorBadRequest('ValidationError'));
       } else {
-        next(new IntervalServerError('Server Error'));
+        next(data);
       }
     });
 }
