@@ -94,7 +94,7 @@ function login(req, res, next) {
     });
 }
 function getUserInfo(req, res, next) {
-  userSchema.findById(req.user._id)
+  userSchema.findById(req.user.payload)
     .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
       res.send(`${user}какашка`);
@@ -111,7 +111,7 @@ function getUserInfo(req, res, next) {
 function updateUser(req, res, next) {
   const { name, about } = req.body;
   userSchema.findByIdAndUpdate(
-    req.user._id,
+    req.user.payload,
     { name, about },
     { new: true, runValidators: true },
   )
@@ -133,7 +133,7 @@ function updateUser(req, res, next) {
 function updateAvatar(req, res, next) {
   const { avatar } = req.body;
   userSchema.findByIdAndUpdate(
-    req.user._id,
+    req.user.payload,
     { avatar },
     { new: true, runValidators: true },
   )
