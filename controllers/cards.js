@@ -32,8 +32,8 @@ function createCard(req, res, next) {
   const owner = req.user.payload;
   const { name, link } = req.body;
   Card.create({ name, link, owner })
-    .then(() => {
-      res.status(201).send({ message: owner });
+    .then((data) => {
+      res.status(201).send({ message: data._id });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -59,9 +59,8 @@ function deleteCard(req, res, next) {
     .catch((err) => {
       if (err.kind === 'CastError') {
         next(new ErrorBadRequest('Неверное тело запроса'));
-      } else {
-        next(err);
       }
+      next(new NotFoundError('ты ошибся'));
     });
 }
 
