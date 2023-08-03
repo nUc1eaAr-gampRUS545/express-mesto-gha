@@ -60,12 +60,12 @@ function likeCard(req, res, next) {
     req.params.cardId,
     { $addToSet: { likes: req.user.payload } },
     { new: true },
-  ).orFail(new NotFoundError('Карточка по данному id не найдена'))
+  )
     .then((data) => {
       if (!data) {
-        next(new NotFoundError('Такой карточки не сущесвует'));
+        return next(new NotFoundError('Такой карточки не сущесвует'));
       }
-      res.status(200).send({ message: data });
+      return res.status(200).send({ message: data });
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {

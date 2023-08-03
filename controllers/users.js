@@ -52,7 +52,7 @@ function createUser(req, res, next) {
         avatar,
       }).then((user) => res.send({
         name: user.name, about: user.about, avatar: user.avatar, email: user.email,
-      }));
+      })).catch(() => res.status(409).send({ message: 'Пользователь с таким email уже существует' }));
     })
     .catch((err) => {
       if (err.code === 11000) {
