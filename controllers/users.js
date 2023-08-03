@@ -13,14 +13,14 @@ const ConflictError = require('../utils/errors/ConflictError');
 
 function getUsers(_req, res, next) {
   return userSchema.find({})
-    .then((data) => res.status(200).send(data))
+    .then((users) => res.send(users))
     .catch(() => {
       next(new IntervalServerError('Server Error'));
     });
 }
 
 function getUser(req, res, next) {
-  const { userId } = req.params;
+  const { userId } = req.params.id;
   userSchema.findById(userId)
     .then((data) => {
       if (!data) {
