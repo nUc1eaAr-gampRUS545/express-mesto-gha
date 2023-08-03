@@ -50,11 +50,13 @@ function createUser(req, res, next) {
         name,
         about,
         avatar,
+      }).then(() => res.send({
+        name, about, avatar, email,
+      })).catch(() => {
+        next(new ConflictError('Пользователь с таким email уже существует'));
       });
     })
-    .then(() => res.send({
-      name, about, avatar, email,
-    }))
+
     .catch((err) => {
       if (err.code === 11000) {
         next(new ConflictError('Пользователь с таким email уже существует'));
@@ -71,12 +73,12 @@ function login(req, res, next) {
   userSchema.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Unauthorized('Неправильные почта или пароль'));
+        return res.status(401).send({ message: 'Неправильные почта или пароль' });
       }
       return bcrypt.compare(password, user.password)
         .then((result) => {
           if (!result) {
-            return Promise.reject(new ErrorBadRequest('Неправильные почта или пароль'));
+            return res.status(401).send({ message: 'Неправильные почта или пароль' });
           }
           const token = jwt.sign({ payload: user._id }, 'some-secret-key', { expiresIn: '7d' });
           res
@@ -97,7 +99,10 @@ function getUserInfo(req, res, next) {
   userSchema.findById(req.user.payload)
     .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
-      res.send(`${user}какашка`);
+      res.status(200).send({
+        data:
+        { name: user.name, about: user.about, avatar: user.avatar },
+      });
     })
     .catch((err) => {
       if (err.name === 'CastError') {

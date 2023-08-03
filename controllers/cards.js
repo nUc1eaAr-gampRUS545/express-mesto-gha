@@ -45,13 +45,13 @@ function createCard(req, res, next) {
 }
 
 function deleteCard(req, res, next) {
-  return Card.findById(req.params.cardId)
+  return Card.findById(req.user.payload)
     .then((data) => {
       if (!data) {
-        throw new NotFoundError('ты ошибся');
+        next(new NotFoundError('ты ошибся'));
       }
       if (!data.owner.equals(req.user._id)) {
-        throw new NotFoundError('ты ошибся');
+        next(new NotFoundError('ты ошибся'));
       }
       data.deleteOne()
         .then(() => res.status(200).send({ message: data }).catch(next));
