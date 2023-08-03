@@ -45,23 +45,16 @@ function createCard(req, res, next) {
 }
 
 function deleteCard(req, res, next) {
-  return Card.findById(req.user.payload)
-    .then((data) => {
-      if (!data) {
-        next(new NotFoundError('ты ошибся'));
+  return Card.findById(req.params.cardId)
+    .orFail(() => new NotFoundError('Карточка по данному id не найдена'))
+    .then((card) => {
+      if (card.owner._id.toString() === req.user._id) {
+        return card.remove()
+          .then(() => res.send({ message: 'Карточка удалена' }));
       }
-      if (!data.owner.equals(req.user._id)) {
-        next(new NotFoundError('ты ошибся'));
-      }
-      data.deleteOne()
-        .then(() => res.status(200).send({ message: data }).catch(next));
+      return res.status(409).send({ message: 'Недостаточно прав для удаления карточки' });
     })
-    .catch((err) => {
-      if (err.kind === 'CastError') {
-        next(new ErrorBadRequest('Неверное тело запроса'));
-      }
-      next(new NotFoundError('ты ошибся'));
-    });
+    .catch(next);
 }
 
 function likeCard(req, res, next) {
@@ -69,13 +62,12 @@ function likeCard(req, res, next) {
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  )
+  ).orFail(new NotFoundError('Карточка по данному id не найдена'))
     .then((data) => {
       if (!data) {
         next(new NotFoundError('Такой карточки не сущесвует'));
-      } else {
-        res.status(200).send({ message: data });
       }
+      res.status(200).send({ message: data });
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
