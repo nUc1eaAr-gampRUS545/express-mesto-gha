@@ -2,7 +2,7 @@ const Card = require('../models/cards');
 
 const NotFoundError = require('../utils/errors/not-found-error');
 const ErrorBadRequest = require('../utils/errors/invalid-request');
-const IntervalServerError = require('../utils/errors/errorHandler');
+const IntervalServerError = require('../utils/errors/IntervalServerError');
 
 function getCards(_req, res, next) {
   return Card.find({})
@@ -44,7 +44,7 @@ function createCard(req, res, next) {
 
 function deleteCard(req, res, next) {
   return Card.findById(req.params.cardId)
-    .orFail(() => new ErrorBadRequest('Карточка по данному id не найдена'))
+    .orFail(() => new NotFoundError('Карточка по данному id не найдена'))
     .then((card) => {
       if (card.owner._id.toString() === req.user.payload) {
         return card.deleteOne()
@@ -81,7 +81,7 @@ function likeCard(req, res, next) {
 function dislikeCard(req, res, next) {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: req.user._id } },
+    { $pull: { likes: req.user.payload } },
     { new: true },
   )
     .then((data) => {

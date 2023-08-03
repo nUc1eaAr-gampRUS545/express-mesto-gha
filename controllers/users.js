@@ -7,7 +7,7 @@ const NotFoundError = require('../utils/errors/not-found-error');
 // const Unauthorized = require('../utils/errors/unauthorized');
 const userSchema = require('../models/users');
 const ErrorBadRequest = require('../utils/errors/invalid-request');
-const IntervalServerError = require('../utils/errors/errorHandler');
+const IntervalServerError = require('../utils/errors/IntervalServerError');
 const Unauthorized = require('../utils/errors/unauthorized');
 const ConflictError = require('../utils/errors/ConflictError');
 
@@ -30,7 +30,7 @@ function getUser(req, res, next) {
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        next(new ErrorBadRequest('Некорректный формат id.'));
+        next(new NotFoundError('Некорректный формат id.'));
       } else if (err.error === 'Bad Request') {
         next(new NotFoundError('Некорректный формат id.'));
       } else {
