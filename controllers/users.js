@@ -21,7 +21,7 @@ function getUsers(_req, res, next) {
 
 function getUser(req, res, next) {
   const { userId } = req.params;
-  return userSchema.findById(userId)
+  userSchema.findById(userId)
     .then((data) => {
       if (!data) {
         next(new NotFoundError('Пользователь по указанному id не найден.'));
@@ -31,6 +31,8 @@ function getUser(req, res, next) {
     .catch((err) => {
       if (err.kind === 'ObjectId') {
         next(new NotFoundError('Некорректный формат id.'));
+      } else if (err.name === 'Validation Error') {
+        next(new ErrorBadRequest('Некорректный формат id.'));
       } else {
         next(new IntervalServerError('Server Error'));
       }
@@ -50,13 +52,11 @@ function createUser(req, res, next) {
         avatar,
       }).then(() => res.send({
         name, about, avatar, email,
-      })).catch(() => {
-        next(new ConflictError('Пользователь с таким email уже существует1'));
-      });
+      })).catch(() => res.status(409).send({ message: 'Пользователь с таким email уже существует' }));
     })
     .catch((err) => {
       if (err.code === 11000) {
-        next(new ConflictError('Пользователь с таким email уже существует2'));
+        next(new ConflictError('Пользователь с таким email уже существует'));
       } else if (err.name === 'Validation Error') {
         next(new ErrorBadRequest(err));
       } else {
@@ -96,10 +96,9 @@ function getUserInfo(req, res, next) {
   userSchema.findById(req.user.payload)
     .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
-      res.status(200).send({
-        data:
+      res.status(200).send(
         { name: user.name, about: user.about, avatar: user.avatar },
-      });
+      );
     })
     .catch((err) => {
       if (err.name === 'CastError') {

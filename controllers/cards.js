@@ -46,7 +46,7 @@ function createCard(req, res, next) {
 
 function deleteCard(req, res, next) {
   return Card.findById(req.params.cardId)
-    .orFail(() => new NotFoundError('Карточка по данному id не найдена'))
+    .orFail(() => new ErrorBadRequest('Карточка по данному id не найдена'))
     .then((card) => {
       if (card.owner._id.toString() === req.user.payload) {
         return card.remove()
