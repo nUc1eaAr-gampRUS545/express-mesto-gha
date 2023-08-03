@@ -48,7 +48,7 @@ function deleteCard(req, res, next) {
   return Card.findById(req.params.cardId)
     .orFail(() => new NotFoundError('Карточка по данному id не найдена'))
     .then((card) => {
-      if (card.owner._id.toString() === req.user._id) {
+      if (card.owner._id.toString() === req.user.payload) {
         return card.remove()
           .then(() => res.send({ message: 'Карточка удалена' }));
       }
