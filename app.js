@@ -16,7 +16,7 @@ const { createUser, login } = require('./controllers/users');
 const { authentiacateUser } = require('./middlewares/auth');
 const { validateCreateUser, validateUserLogin } = require('./middlewares/validateJoi');
 const NotFoundError = require('./utils/errors/not-found-error');
-// const { errorHandler } = require('./utils/errors/errorHandler');
+const { errorHandler } = require('./utils/errors/errorHandler');
 
 app.use(bodyParser.json());
 app.use(cookies());
@@ -35,9 +35,7 @@ app.use('/cards', authentiacateUser, routesCards);
 
 app.use(authentiacateUser, (_req, _res, next) => next(new NotFoundError('Cтраница не найдена')));
 app.use(errors());
-app.listen(PORT, (err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
-  const message = statusCode === 500 ? 'На сервере произощла ошибка' : err.message;
-  res.status(statusCode).send({ message });
-  next();
+app.use(errorHandler);
+app.listen(PORT, () => {
+  console.log('Сервер запущен');
 });
