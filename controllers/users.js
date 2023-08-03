@@ -52,7 +52,6 @@ function createUser(req, res, next) {
         avatar,
       });
     })
-
     .then(() => res.send({
       name, about, avatar, email,
     }))
@@ -72,14 +71,12 @@ function login(req, res, next) {
   userSchema.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        next(new ErrorBadRequest('Неправильные почта или пароль'));
-        return;
+        return Promise.reject(new Unauthorized('Неправильные почта или пароль'));
       }
-
       return bcrypt.compare(password, user.password)
         .then((result) => {
           if (!result) {
-            next(new ErrorBadRequest('Неправильные почта или пароль'));
+            return Promise.reject(new ErrorBadRequest('Неправильные почта или пароль'));
           }
           const token = jwt.sign({ payload: user._id }, 'some-secret-key', { expiresIn: '7d' });
           res
@@ -100,7 +97,7 @@ function getUserInfo(req, res, next) {
   userSchema.findById(req.user._id)
     .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
-      res.send(user);
+      res.send(`${user}какашка`);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
