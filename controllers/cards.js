@@ -33,7 +33,7 @@ function createCard(req, res, next) {
   const { name, link } = req.body;
   Card.create({ name, link, owner })
     .then((data) => {
-      res.status(201).send({ message: data._id });
+      res.status(201).send({ message: data.owner._id });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -60,7 +60,7 @@ function deleteCard(req, res, next) {
 function likeCard(req, res, next) {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: req.user._id } },
+    { $addToSet: { likes: req.user.payload } },
     { new: true },
   ).orFail(new NotFoundError('Карточка по данному id не найдена'))
     .then((data) => {
@@ -88,7 +88,7 @@ function dislikeCard(req, res, next) {
   )
     .then((data) => {
       if (!data) {
-        next(new NotFoundError('Такой карточки не сущесвует'));
+        res.status(404).send({ message: 'Такой карточки не существует' });
       } else {
         res.status(200).send({ message: data });
       }

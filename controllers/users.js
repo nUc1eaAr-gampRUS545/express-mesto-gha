@@ -31,8 +31,8 @@ function getUser(req, res, next) {
     .catch((err) => {
       if (err.kind === 'ObjectId') {
         next(new NotFoundError('Некорректный формат id.'));
-      } else if (err.name === 'Validation Error') {
-        next(new ErrorBadRequest('Некорректный формат id.'));
+      } else if (err.error === 'Bad Request') {
+        next(new NotFoundError('Некорректный формат id.'));
       } else {
         next(new IntervalServerError('Server Error'));
       }
