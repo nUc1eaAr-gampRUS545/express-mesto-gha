@@ -33,6 +33,8 @@ function getUser(req, res, next) {
         next(new NotFoundError('Некорректный формат id.'));
       } else if (err.error === 'Bad Request') {
         next(new NotFoundError('Некорректный формат id.'));
+      } else if (err.name === 'CastError') {
+        next(new NotFoundError('Ошибка данных'));
       } else {
         next(new IntervalServerError('Server Error'));
       }
