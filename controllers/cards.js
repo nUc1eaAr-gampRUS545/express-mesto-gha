@@ -3,6 +3,7 @@ const Card = require('../models/cards');
 const NotFoundError = require('../utils/errors/not-found-error');
 const ErrorBadRequest = require('../utils/errors/invalid-request');
 const IntervalServerError = require('../utils/errors/IntervalServerError');
+const Forbidden = require('../utils/errors/Forbidden');
 
 function getCards(_req, res, next) {
   return Card.find({})
@@ -50,7 +51,7 @@ function deleteCard(req, res, next) {
         return card.deleteOne()
           .then(() => res.send({ message: 'Карточка удалена' }));
       }
-      return res.status(403).send({ message: 'Недостаточно прав для удаления карточки' });
+      return next(new Forbidden('Недостаточно прав для удаления карточки'));
     })
     .catch(next);
 }

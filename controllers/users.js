@@ -20,7 +20,7 @@ function getUsers(_req, res, next) {
 }
 
 function getUser(req, res, next) {
-  const { userId } = req.params.id;
+  const { userId } = req.params;
   userSchema.findById(userId)
     .then((data) => {
       if (!data) {
@@ -43,17 +43,16 @@ function createUser(req, res, next) {
     email, password, name, about, avatar,
   } = req.body;
   bcrypt.hash(password, 10)
-    .then((hash) => {
-      userSchema.create({
-        email,
-        password: hash,
-        name,
-        about,
-        avatar,
-      }).then((user) => res.send({
-        name: user.name, about: user.about, avatar: user.avatar, email: user.email,
-      })).catch(() => res.status(409).send({ message: 'Пользователь с таким email уже существует' }));
-    })
+    .then((hash) => userSchema.create({
+      email,
+      password: hash,
+      name,
+      about,
+      avatar,
+    }).then((user) => res.send({
+      name: user.name, about: user.about, avatar: user.avatar, email: user.email,
+    })))
+    // .catch(() => res.status(409).send({ message: 'Пользователь с таким email уже существует' }))
     .catch((err) => {
       if (err.code === 11000) {
         next(new ConflictError('Пользователь с таким email уже существует'));
