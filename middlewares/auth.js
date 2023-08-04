@@ -1,10 +1,11 @@
 const JWT = require('jsonwebtoken');
 const Unauthorized = require('../utils/errors/unauthorized');
 
-function authentiacateUser(req, res, next) {
+function authentiacateUser(req, _res, next) {
   const token = req.cookies.jwt;
   if (!token) {
-    res.status(401).send({ message: 'Пользователь не авторезирован' });
+    // res.status(401).send({ message: 'Пользователь не авторезирован' });
+    next(new Unauthorized('Пользователь не авторезирован'));
   }
   let payload;
   try {
