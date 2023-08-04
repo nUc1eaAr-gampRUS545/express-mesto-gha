@@ -26,7 +26,7 @@ function getUser(req, res, next) {
       if (!data) {
         return next(new NotFoundError('Пользователь по указанному id не найден.'));
       }
-      res.status(200).send({ message: data });
+      return res.status(200).send({ message: data });
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
